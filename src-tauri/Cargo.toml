@@ -17,7 +17,7 @@ crate-type = [
 
 [build-dependencies.tauri-build]
 version = "2.3.0"
-features = [ ]
+features = []
 
 [dependencies]
 tauri-plugin-shell = "2.3.0"
@@ -29,7 +29,7 @@ serde_json = "1"
 
 [dependencies.tauri]
 version = "2.6.2"
-features = [
+features = ["protocol-asset", "macos-private-api",
   "tray-icon",
   "unstable"
 ]

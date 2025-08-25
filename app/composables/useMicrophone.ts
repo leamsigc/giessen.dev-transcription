@@ -19,18 +19,18 @@ export const useMicrophone = () => {
 
   const getMicrophoneStream = async (deviceId?: string) => {
     try {
-    const constraints: MediaStreamConstraints = {
-      audio: deviceId ? { deviceId: { exact: deviceId } } : true
-    }
-      console.log("constraints",constraints);
-      
-      const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-      console.log("Sucess accesing media devices");
-      
+      const constraints: MediaStreamConstraints = {
+        audio: deviceId ? { deviceId: { exact: deviceId } } : true
+      }
+      console.log("constraints", constraints);
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log("Success accessing media devices");
+
       return stream;
     } catch (error) {
-      //this is when user don't allow media devices
-      console.log(error);
+      console.error('Microphone access error:', error);
+      throw error; // Re-throw to handle in calling code
     }
   }
 

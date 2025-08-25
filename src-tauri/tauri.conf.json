@@ -1,12 +1,6 @@
 {
 	"bundle": {
 		"active": true,
-		"targets": "all",
-		"windows": {
-			"certificateThumbprint": null,
-			"digestAlgorithm": "sha256",
-			"timestampUrl": ""
-		},
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -14,31 +8,34 @@
 			"icons/icon.icns",
 			"icons/icon.ico"
 		],
-		"resources": [],
-		"externalBin": [],
-		"copyright": "",
-		"category": "DeveloperTool",
-		"shortDescription": "",
-		"longDescription": "",
-		"macOS": {},
-		"linux": {
-			"deb": {}
+		"windows": {
+			"wix": {
+				"language": {
+					"en-US": {}
+				}
+			},
+			"nsis": {
+				"compression": "none"
+			}
 		}
 	},
 	"build": {
-		"beforeBuildCommand": "pnpm generate",
 		"frontendDist": "../dist",
+		"devUrl": "http://localhost:3000",
 		"beforeDevCommand": "pnpm dev",
-		"devUrl": "http://localhost:3000"
+		"beforeBuildCommand": "pnpm generate",
+		"removeUnusedCommands": true
 	},
-	"productName": "Nuxtor",
+	"productName": "Giessen.dev-Transcriber",
 	"version": "1.4.0",
-	"identifier": "com.nicolaspadari.nuxtor",
+	"identifier": "com.leamsigc.giessen.dev.transcriber",
 	"plugins": {},	
 	"app": {
+		"withGlobalTauri": true,
+		"macOSPrivateApi": true,
 		"windows": [
 			{
-				"title": "Nuxtor",
+				"title": "Giessen.dev-Transcriber",
 				"width": 1366,
 				"height": 768,
 				"minWidth": 375,
@@ -48,8 +45,23 @@
 			}
 		],
 		"security": {
-			"capabilities": ["main"],
-			"csp": null
+			"csp": {
+				"default-src": "'self' customprotocol: asset:",
+				"connect-src": "ipc: http://ipc.localhost",
+				"font-src": ["https://fonts.gstatic.com"],
+				"img-src": "'self' asset: http://asset.localhost blob: data:",
+				"style-src": "'unsafe-inline' 'self' https://fonts.googleapis.com",
+				"media-src": "'self' blob: data:",
+				"script-src": "'self' 'unsafe-eval'"
+			},
+			"freezePrototype": true,
+			"assetProtocol": {
+				"enable": true,
+				"scope": {
+					"allow": ["$APPDATA/db/**", "$RESOURCE/**"],
+					"deny": ["$APPDATA/db/*.stronghold"]
+				}
+			}
 		}
 	}
 }
