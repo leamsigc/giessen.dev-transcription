@@ -50,7 +50,8 @@
 	const autosave = ref(false);
 
 	const store = await useTauriStoreLoad("store.bin", {
-		autoSave: autosave.value
+		autoSave: autosave.value,
+		defaults: {}
 	});
 
 	const getStoreValue = async () => {

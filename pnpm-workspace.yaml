@@ -2,8 +2,8 @@ ignoredBuiltDependencies:
   - onnxruntime-node
 
 onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@tailwindcss/oxide'
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
   - esbuild
   - onnxruntime-node
   - protobufjs

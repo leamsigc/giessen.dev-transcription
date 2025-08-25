@@ -1,0 +1,207 @@
+
+
+### Rules must follow
+      You are an expert in TypeScript, Node.js, NuxtJS 4, Vue 3, Nuxtui, Vue, Radix Vue, VueUse, and Tailwind.
+      
+      Code Style and Structure
+      - Write concise, technical TypeScript code with accurate examples.
+      - Use composition API and declarative programming patterns; avoid options API.
+      - Prefer iteration and modularization over code duplication.
+      - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+      - Structure files: exported component, composables, helpers, static content, types.
+      
+      Naming Conventions
+      - Use lowercase with dashes for directories (e.g., components/auth-wizard).
+      - Use PascalCase for component names (e.g., AuthWizard.vue).
+      - Use camelCase for composables (e.g., useAuthState.ts).
+      
+      TypeScript Usage
+      - Use TypeScript for all code; prefer types over interfaces.
+      - Avoid enums; use const objects instead.
+      - Use Vue 3 with TypeScript, leveraging defineComponent and PropType.
+      
+      Syntax and Formatting
+      - Use arrow functions for methods and computed properties.
+      - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+      - Use template syntax for declarative rendering.
+      
+      UI and Styling
+      - Use NuxtUI, Vue, Radix Vue, and Tailwind for components and styling.
+      - Use as much Tailwind css as possible for styling no custom css classes.
+      - Implement responsive design with Tailwind CSS; use a mobile-first approach.
+      
+      Performance Optimization
+      - Leverage Nuxt's built-in performance optimizations.
+      - Use Suspense for asynchronous components.
+      - Implement lazy loading for routes and components.
+      - Optimize images: use WebP format, include size data, implement lazy loading.
+      
+      Key Conventions
+      - Use VueUse for common composables and utility functions.
+      - Use Pinia for state management.
+      - Optimize Web Vitals (LCP, CLS, FID).
+      - Utilize Nuxt's auto-imports feature for components and composables.
+      
+      Nuxt-specific Guidelines
+      - Follow Nuxt 4 directory structure (e.g., pages/, components/, composables/).
+      - Use Nuxt's built-in features:
+        - Auto-imports for components and composables.
+        - File-based routing in the pages/ directory.
+        - Server routes in the server/ directory.
+        - Leverage Nuxt plugins for global functionality.
+      - Use useFetch and useAsyncData for data fetching.
+      - Implement SEO best practices using Nuxt's useHead and useSeoMeta.
+      
+      Vue 3 and Composition API Best Practices
+      - Use <script setup> syntax for concise component definitions.
+      - Leverage ref, reactive, and computed for reactive state management.
+      - Use provide/inject for dependency injection when appropriate.
+      - Implement custom composables for reusable logic.
+      
+      Follow the official Nuxt.js and Vue.js documentation for up-to-date best practices on Data Fetching, Rendering, and Routing.
+      
+
+# When creating a new vue files use the following as templated
+
+```vue
+<script lang="ts" setup>
+/**
+ *
+ * Component Description:<The component description>
+ *
+ * @author Ismael Garcia <leamsigc@leamsigc.com>
+ * @version 0.0.1
+ *>
+ * @todo [ ] Test the component
+ * @todo [ ] Integration test.
+ * @todo [✔] Update the typescript.
+ */
+</script>
+
+<template>
+  <Content here>
+</template>
+<style scoped >
+
+</style>
+```
+
+### When asked to create a new feature follow the following steps
+
+1. Create the <FEATURE> directory in the `./app/pages/app/<FEATURE>/` and all the new vue routes that you need example index, create, update as well create the translation json for each file  
+2. Create the <FEATURE>.ts file in the `./app/composables/use<FEATURE>.ts` file the ingle Use<FEATURE>.ts and the use<FEATURE>Management.ts
+3. If the feature required a api request create the <FEATURE>.ts file in the `./server/api/v1/<FEATURE>/` file for each action CRUD base 
+4. if the feature required a api request create the <FEATURE>.ts file in the `./server/services/<FEATURE>.ts`
+5. If there are files created in the server folder then the following need to be handle 
+    - /<FEATURE>/[action].ts CRUD base will use the ./server/services/<FEATURE>.ts to make any business logic or database operations
+    - /<FEATURE>/index.ts will use the ./server/services/<FEATURE>.ts to get all the data for the <FEATURE>
+
+Example:
+
+User ask for new feature: `Create a feature to handle comments`
+Desired folder structure
+
+```shell
+- app
+    - pages
+        - app
+            - comments #All comments related pages will go here
+                - Components/ #All comments related components will go here
+                    - Comments.vue
+                - index.vue
+                - index.json
+                - create.vue
+                - create.json
+                - update.vue
+                - update.json
+            - admin #All admin related pages will go here 
+                - comments # The admin will use the components that are located in the ./app/pages/app/comments/Components/
+                    - index.json
+                    - index.vue
+- composables
+    - useComments.ts
+    - useCommentsManagement.ts
+- server
+    - api
+        - v1
+            - comments
+                - index.ts
+                - create.ts
+                - update.ts
+    - services
+        - comments.ts
+```
+
+
+## For animation use the module that is installed already `@vueuse/motion/nuxt`
+
+Use the presets as much as possible for animation
+fade
+<div v-motion-fade />
+fade Visible
+<div v-motion-fade-visible />
+fade Visible Once
+<div v-motion-fade-visible-once />
+roll Bottom
+<div v-motion-roll-bottom />
+roll Left
+<div v-motion-roll-left />
+roll Right
+<div v-motion-roll-right />
+roll Top
+<div v-motion-roll-top />
+roll Visible Bottom
+<div v-motion-roll-visible-bottom />
+roll Visible Left
+<div v-motion-roll-visible-left />
+roll Visible Right
+<div v-motion-roll-visible-right />
+roll Visible Top
+<div v-motion-roll-visible-top />
+roll Visible Once Bottom
+<div v-motion-roll-visible-once-bottom />
+roll Visible Once Left
+<div v-motion-roll-visible-once-left />
+roll Visible Once Right
+<div v-motion-roll-visible-once-right />
+roll Visible Once Top
+<div v-motion-roll-visible-once-top />
+pop
+<div v-motion-pop />
+pop Visible
+<div v-motion-pop-visible />
+pop Visible Once
+<div v-motion-pop-visible-once />
+slide Bottom
+<div v-motion-slide-bottom />
+slide Left
+<div v-motion-slide-left />
+slide Right
+<div v-motion-slide-right />
+slide Top
+<div v-motion-slide-top />
+slide Visible Bottom
+<div v-motion-slide-visible-bottom />
+slide Visible Left
+<div v-motion-slide-visible-left />
+slide Visible Right
+<div v-motion-slide-visible-right />
+slide Visible Top
+<div v-motion-slide-visible-top />
+slide Visible Once Bottom
+<div v-motion-slide-visible-once-bottom />
+slide Visible Once Left
+<div v-motion-slide-visible-once-left />
+slide Visible Once Right
+<div v-motion-slide-visible-once-right />
+slide Visible Once Top
+<div v-motion-slide-visible-once-top /> 
+
+
+
+## Translation related always use the composable for translation
+
+```ts
+const { t } = useI18n()
+
+```

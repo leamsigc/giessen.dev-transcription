@@ -1,11 +1,11 @@
 <p align="center">
     <img width="150" src="./public/logo.png" alt="logo">
 </p>
-<h1 align="center">NUXTOR</h1>
+<h1 align="center">Giessen.dev Transcriber</h1>
 <p align="center">
-A spiritual successor of <a href="https://github.com/NicolaSpadari/vitauri">ViTauri</a>, made with <a href="https://nuxt.com">Nuxt 4</a> and <a href="https://v2.tauri.app">Tauri 2</a>
+A powerful voice-to-text transcription application built with <a href="https://nuxt.com">Nuxt 4</a> and <a href="https://v2.tauri.app">Tauri 2</a>
 <br>
-Build super fast desktop applications!
+Transform your voice into text with local AI models!
 </p>
 
 <br />
@@ -21,77 +21,124 @@ Build super fast desktop applications!
 <img src="./public/screenshot.png">
 </div>
 
-<p align="center">Powered by Nuxt 4</p>
+<p align="center">Powered by Nuxt 4 & Local AI Models</p>
 
-Check more screenshots at [preview](https://github.com/NicolaSpadari/nuxtor/blob/main/preview.md)
+Check more screenshots at [preview](https://github.com/leamsigc/giessen.dev-transcription/blob/main/preview.md)
 
 <br />
 
-## Technologies run-down
+## Technologies
 
-- Nuxt v4
-- Tauri v2
-- NuxtUI v3
-- TailwindCSS v4
-- Typescript
-- ESLint
-- Auto imports (for Tauri api too!)
+- **Nuxt v4** - Modern Vue.js framework
+- **Tauri v2** - Build desktop apps with web technologies
+- **NuxtUI v3** - Beautiful UI components
+- **TailwindCSS v4** - Utility-first CSS framework
+- **TypeScript** - Type-safe JavaScript
+- **Hugging Face Transformers** - Local AI models for transcription
+- **ONNX Runtime** - High-performance ML inference
+- **Web Audio API** - Real-time audio processing
+- **ESLint** - Code quality and consistency
 
-## Functionalities
+## Features
 
-- Run shell commands from the app
-- Send custom notifications to the client (remember to turn on/grant notifications in your computer settings)
-- Display OS related informations
-- Store and retrieve data locally
-- Show tray icon
-- Support all Nuxt functionalities (routing/layout/middleware/modules/etc...)
+- 🎤 **Real-time Voice Recording** - Record audio directly from your microphone
+- 🧠 **Local AI Transcription** - Process speech using local ML models (no internet required)
+- 💾 **Local Storage** - Save transcriptions securely on your device
+- 🎨 **Modern UI** - Beautiful, responsive interface built with NuxtUI
+- 🔔 **Smart Notifications** - Get notified when transcription starts and completes
+- ⚙️ **Model Selection** - Choose from multiple AI transcription models
+- 📝 **Transcription History** - View and manage all your past transcriptions
+- 🔧 **Settings Management** - Customize microphone and model preferences
+- 🖥️ **Cross-platform** - Works on Windows, macOS, and Linux
 
-## Setup
+## Installation & Setup
 
-  - Before running this app, you need to configure your environment with Rust. Take a look at the [Tauri docs](https://v2.tauri.app/start/prerequisites).
-  - This project enforces [pnpm](https://pnpm.io). In order to use another package manager you need to update `package.json` and `tauri.conf.json`
-  - The frontend runs on the usual port `3000` of Nuxt, the Tauri server uses the port `3001`. This settings are customizable in the `nuxt.config.ts` and `tauri.conf.json`.
-  - Once ready, follow these commands:
+### Prerequisites
 
-  ```sh
-  # use this template
-  $ npx degit NicolaSpadari/nuxtor my-nuxtor-app
+- **Rust** - Required for Tauri. Install from [rustup.rs](https://rustup.rs/)
+- **Node.js 23+** - Latest LTS version recommended
+- **pnpm** - This project uses pnpm as package manager
 
-  # go into the folder
-  $ cd my-nuxtor-app
+### Quick Start
 
-  # install dependencies
-  $ pnpm install
+```sh
+# Clone the repository
+$ git clone https://github.com/leamsigc/giessen.dev-transcription.git
+$ cd giessen.dev.audio-transcriber
 
-  # start the project
-  $ pnpm run tauri:dev
-  ```
+# Install dependencies
+$ pnpm install
 
-  This will run the Nuxt frontend and will launch the Tauri window.
+# Start development mode
+$ pnpm run tauri:dev
+```
 
-## Build
+This will launch the application in development mode with hot reload.
 
-  ```sh
-  $ pnpm run tauri:build
-  ```
+### First Time Setup
 
-This command will generate the Nuxt static output and bundle the project under `src-tauri/target`.
+1. **Grant Microphone Permissions** - The app will request microphone access on first run
+2. **Download AI Models** - Models are downloaded automatically on first use
+3. **Enable Notifications** - Allow notifications for transcription status updates
 
-## Debug
+### Alternative Package Managers
 
-  ```sh
-  $ pnpm run tauri:build:debug
-  ```
+If you prefer npm or yarn, update the following files:
+- `package.json` - Remove the `preinstall` script
+- `tauri.conf.json` - Update package manager configuration
+## How It Works
 
-The same Tauri bundle will generate under `src-tauri/target`, but with the ability to open the console.
+The application uses local AI models to transcribe speech in real-time:
 
-## Notes
+1. **Audio Capture** - Records audio from your microphone using Web Audio API
+2. **Model Processing** - Processes audio with Hugging Face Transformers and ONNX Runtime
+3. **Text Output** - Converts speech to text locally (no data sent to external servers)
+4. **Storage** - Saves transcriptions to local Tauri store for future reference
 
-- Tauri v2 brings some big refactors, such as packages names and permission management. New permissions have to be granted under `src-tauri/capabilities/main.json`
-- Tauri functions are auto imported with the help of a custom module, named like `useTauri<LibraryName>`. If another Tauri plugin is added, then the module has to be updated to support its functions under `app/modules/tauri.ts`
-- As per [documentation](https://v2.tauri.app/start/frontend/nuxt/#checklist), Nuxt SSR must be disabled in order for Tauri to act as the backend. Still, all Nuxt goodies will be functional.
-- NuxtUI is a very powerful UI library that consolidates design over the entire application. While there is a more complete pro version, it requires a license. It's up to you to buy the pro version, or stick with the free version.
+## Build for Production
+
+```sh
+# Build optimized production version
+$ pnpm run tauri:build
+```
+
+The built application will be available in `src-tauri/target/release/`.
+
+## Debug Build
+
+```sh
+# Build with debug features and console access
+$ pnpm run tauri:build:debug
+```
+
+Debug builds include developer tools and console output for troubleshooting.
+
+## Important Notes
+
+### Permissions & Security
+
+- **Microphone Access** - Grant microphone permissions in your OS settings for recording
+- **Notification Permissions** - Enable notifications to receive transcription status updates
+- **Local Processing** - All transcription happens locally - your audio never leaves your device
+- **Tauri Permissions** - Audio and storage permissions are configured in `src-tauri/capabilities/main.json`
+
+### Technical Details
+
+- **No SSR** - Nuxt SSR is disabled as Tauri serves as the backend
+- **Auto Imports** - Tauri functions are auto-imported via custom modules in `app/modules/tauri.ts`
+- **Model Downloads** - AI models are downloaded on first use and cached locally
+- **Web Audio API** - Real-time audio processing with visual feedback
+
+### UI & Design
+
+- **NuxtUI** - Free version provides excellent components; Pro version available for enhanced features
+- **Responsive Design** - Works on desktop and laptop screens
+- **Dark/Light Mode** - Automatic theme detection and manual override options
+
+## Contributing
+
+We welcome contributions! Please feel free to submit issues and pull requests.
 
 ## License
 
-MIT License © 2024-PRESENT [NicolaSpadari](https://github.com/NicolaSpadari)
+MIT License © 2024-PRESENT [Leamsigc](https://github.com/leamsigc)

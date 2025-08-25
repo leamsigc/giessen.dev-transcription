@@ -29,7 +29,7 @@
 	"productName": "Giessen.dev-Transcriber",
 	"version": "1.4.0",
 	"identifier": "com.leamsigc.giessen.dev.transcriber",
-	"plugins": {},	
+	"plugins": {},
 	"app": {
 		"withGlobalTauri": true,
 		"macOSPrivateApi": true,
