@@ -12,23 +12,55 @@
 				</p>
 
 				<div class="flex flex-col items-center gap-4">
-					<div class="flex gap-2">
-						<UButton :disabled="isRecording" color="primary" size="lg" @click="startRecording">
-							<UIcon name="i-heroicons-microphone" class="w-5 h-5 mr-2" />
-							Start Recording
-						</UButton>
-						<UButton :disabled="!isRecording" color="error" size="lg" @click="stopRecording">
-							<UIcon name="i-heroicons-stop" class="w-5 h-5 mr-2" />
-							Stop Recording
+					<!-- Loading Indicator -->
+					<div v-if="status === 'loading'" class="flex flex-col items-center gap-4 p-6">
+						<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-primary" />
+						<p class="text-lg font-medium">
+							Loading transcription model...
+						</p>
+						<p class="text-sm text-muted-foreground">
+							This may take a few moments on first load
+						</p>
+						<div v-if="progress > 0" class="w-full max-w-xs">
+							<UProgress :value="progress" />
+						</div>
+					</div>
+
+					<!-- Error State -->
+					<div v-else-if="status === 'error'" class="flex flex-col items-center gap-4 p-6">
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-red-500" />
+						<p class="text-lg font-medium text-red-700">
+							Failed to load transcription model
+						</p>
+						<p v-if="error" class="text-sm text-red-600">
+							{{ error }}
+						</p>
+						<UButton color="primary" size="lg" @click="handleRetryInit">
+							<UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
+							Retry
 						</UButton>
 					</div>
 
-					<!-- Drag and Drop File Transcriber -->
-					<div class="w-full max-w-2xl">
-						<h3 class="text-lg font-semibold mb-4 text-center">
-							Or Upload MP3 Files
-						</h3>
-						<DragDropFileTranscriber />
+					<!-- Main UI - Only show when model is loaded -->
+					<div v-else-if="status === 'loaded' || status === 'done'">
+						<div class="flex gap-2">
+							<UButton :disabled="isRecording" color="primary" size="lg" @click="startRecording">
+								<UIcon name="i-heroicons-microphone" class="w-5 h-5 mr-2" />
+								Start Recording
+							</UButton>
+							<UButton :disabled="!isRecording" color="error" size="lg" @click="stopRecording">
+								<UIcon name="i-heroicons-stop" class="w-5 h-5 mr-2" />
+								Stop Recording
+							</UButton>
+						</div>
+
+						<!-- Drag and Drop File Transcriber -->
+						<div class="w-full max-w-2xl">
+							<h3 class="text-lg font-semibold mb-4 text-center">
+								Or Upload MP3 Files
+							</h3>
+							<DragDropFileTranscriber />
+						</div>
 					</div>
 
 					<!-- Recording View with Visual Wave Indicator -->
@@ -41,15 +73,16 @@
 
 					<!-- Transcription Result -->
 					<div
-						v-if="transcriptionResult"
+						v-if="transcriptionResult || (isStreaming && streamingResult)"
 						class="transcription-result p-4 bg-green-50 rounded-lg border border-green-200 max-w-md"
 					>
 						<p class="font-semibold text-green-800 mb-2">
 							Transcription:
 						</p>
-						<p class="text-green-700">
-							{{ transcriptionResult }}
-						</p>
+						<div class="text-green-700 whitespace-pre-wrap">
+							{{ isStreaming && streamingResult ? streamingResult.text : transcriptionResult }}
+							<span v-if="isStreaming" class="inline-block w-2 h-4 bg-green-600 ml-1 animate-pulse" />
+						</div>
 					</div>
 
 					<!-- Error Display -->
@@ -61,10 +94,10 @@
 
 					<!-- Model Selection -->
 					<div class="model-selection">
-						<!-- {{ modelsOptions }} -->
 						<label class="block text-sm font-medium mb-2">Select Model:</label>
 						<USelect
 							v-model="selectedModel" value-key="value" :items="items" placeholder="Choose a model"
+							:disabled="status === 'loading'"
 							class="w-64"
 						/>
 					</div>
@@ -101,7 +134,7 @@
 
 <script lang="ts" setup>
 	const { app } = useAppConfig();
-	const { run, init, status, progress, error, result, modelsOptions, selectedModel, getModels } = useTranscriber();
+	const { run, init, status, progress, error, result, streamingResult, isStreaming, modelsOptions, selectedModel, getModels, isInitialized, resetInitialization } = useTranscriber();
 	const { selectedMicrophone, getMicrophoneStream, loadMicrophoneSelection } = useMicrophone();
 	const { addTranscription } = useTauriStoreLoadCustom();
 
@@ -134,7 +167,19 @@
 			// @ts-ignore
 			window.TAURI_.event.listen("stop-recording", stopRecording);
 		}
-		init()
+
+		// Only initialize if not already done
+		if (!isInitialized.value) {
+			init();
+		}
+	});
+
+	// Watch for model changes and reset initialization
+	watch(selectedModel, (newModel, oldModel) => {
+		if (newModel !== oldModel && isInitialized.value) {
+			resetInitialization();
+			init();
+		}
 	});
 
 	onUnmounted(() => {
@@ -241,6 +286,11 @@
 
 			animationId = requestAnimationFrame(draw);
 		};
+	};
+
+	const handleRetryInit = () => {
+		resetInitialization();
+		init();
 	};
 
 	const showNotification = async (title: string, body: string) => {

@@ -102,7 +102,7 @@ globalThis.onmessage = async (event) => {
 					isEnglishModel = false;
 				}
 
-				transcriber = await pipeline("automatic-speech-recognition", payload.model || BASE_MODEL);
+				transcriber = await pipeline("automatic-speech-recognition", payload.model || BASE_MODEL, { dtype: "q8" });
 				globalThis.postMessage({ type: "status", status: "loaded", progress: 100 });
 			} catch (error) {
 				globalThis.postMessage({ type: "error", error: error.message });
@@ -111,7 +111,7 @@ globalThis.onmessage = async (event) => {
 
 		case "transcribe":
 			console.log("Transcriber", transcriber);
-			
+
 			if (!transcriber) {
 				globalThis.postMessage({ type: "error", error: "Model not loaded" });
 				return;
@@ -121,13 +121,76 @@ globalThis.onmessage = async (event) => {
 				const { audio, language, model } = payload;
 				console.log({ audio, language, model });
 				console.log("Transcribing audio:", audio, "with language:", language, "and model:", model);
+
+				// Calculate audio duration (sample rate is 16000 Hz)
+				const duration = audio.length / 16000;
+				console.log("Audio duration:", duration, "seconds");
+
 				const settings = {
 					language,
 					return_timestamps: true
 				};
 
-				const result = await transcriber(audio, !isEnglishModel ? settings : {});
+				let result;
+
+				// For long audio files, implement streaming by processing in chunks
+				if (duration > 30) {
+					settings.chunk_length_s = 30;
+					settings.stride_length_s = 5;
+					console.log("Using chunking for long audio:", settings);
+
+					// Process in chunks for streaming effect
+					const chunkDuration = 30; // 30 seconds per chunk
+					const strideDuration = 5; // 5 seconds overlap
+					const samplesPerChunk = chunkDuration * 16000;
+					const strideSamples = strideDuration * 16000;
+
+					let accumulatedText = "";
+					let chunkCount = 0;
+
+					// Calculate number of chunks needed
+					const totalChunks = Math.ceil((duration - strideDuration) / (chunkDuration - strideDuration));
+
+					for (let i = 0; i < audio.length; i += samplesPerChunk - strideSamples) {
+						const chunkEnd = Math.min(i + samplesPerChunk, audio.length);
+						const chunk = audio.slice(i, chunkEnd);
+
+						chunkCount++;
+						const progressPercent = (chunkCount / totalChunks) * 100;
+
+						console.log(`Processing chunk ${chunkCount}/${totalChunks}, progress: ${progressPercent}%`);
+
+						const chunkResult = await transcriber(chunk, !isEnglishModel ? settings : {});
+
+						if (chunkResult && chunkResult.text) {
+							// For streaming, send partial result
+							accumulatedText += (chunkCount > 1 ? " " : "") + chunkResult.text.trim();
+							globalThis.postMessage({
+								type: "stream",
+								result: { ...chunkResult, text: accumulatedText },
+								progress: Math.min(progressPercent, 95)
+							});
+						}
+
+						globalThis.postMessage({ type: "status", status: "transcribing", progress: progressPercent });
+					}
+
+					result = { text: accumulatedText, chunks: [] };
+				} else {
+					// For short audio, process normally
+					result = await transcriber(audio, !isEnglishModel ? settings : {});
+				}
+
 				globalThis.postMessage({ type: "status", status: "done", progress: 100 });
+				globalThis.postMessage({
+					type: "completed",
+					result,
+					transcriptionId: payload.transcriptionId,
+					fileName: payload.fileName,
+					language: payload.language,
+					model: payload.model,
+					fileSize: payload.fileSize
+				});
 				globalThis.postMessage({ type: "result", result });
 			} catch (error) {
 				globalThis.postMessage({ type: "error", error: error.message });
