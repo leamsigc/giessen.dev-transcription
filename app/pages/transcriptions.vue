@@ -51,7 +51,7 @@
 
 							<!-- Edit Mode -->
 							<div v-if="editingTranscription === transcription.id" class="space-y-3">
-								<div class="border rounded-lg p-4 bg-gray-50">
+								<div class="border rounded-lg p-4 ">
 									<div class="flex items-center justify-between mb-3">
 										<h4 class="font-medium">
 											Visual Editor
@@ -69,7 +69,7 @@
 										</div>
 									</div>
 									<UTextarea
-										ref="editorTextarea" v-model="editedText" :rows="8"
+										ref="editorTextarea" v-model="editedText" :rows="20"
 										placeholder="Edit transcription text..." class="w-full font-mono text-sm"
 									/>
 									<div class="flex items-center justify-between mt-2 text-xs text-gray-500">
@@ -91,7 +91,7 @@
 
 							<!-- View Mode -->
 							<div v-else>
-								<p class="text-gray-700 whitespace-pre-wrap mb-4">
+								<p class="text-gray-700 whitespace-pre-wrap mb-4 max-h-96 overflow-y-scroll">
 									{{ transcription.text }}
 								</p>
 								<div class="flex items-center gap-4 text-sm text-gray-500">

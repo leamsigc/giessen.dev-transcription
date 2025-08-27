@@ -79,7 +79,7 @@
 						<p class="font-semibold text-green-800 mb-2">
 							Transcription:
 						</p>
-						<div class="text-green-700 whitespace-pre-wrap">
+						<div class="text-green-700 whitespace-pre-wrap max-h-96 overflow-y-scroll">
 							{{ isStreaming && streamingResult ? streamingResult.text : transcriptionResult }}
 							<span v-if="isStreaming" class="inline-block w-2 h-4 bg-green-600 ml-1 animate-pulse" />
 						</div>
@@ -182,6 +182,13 @@
 		}
 	});
 
+	// Watch for transcription result changes
+	watch(result, (newResult) => {
+		if (newResult?.text) {
+			transcriptionResult.value = newResult.text;
+		}
+	});
+
 	onUnmounted(() => {
 		if (mediaRecorder) mediaRecorder.stop();
 		if (animationId) cancelAnimationFrame(animationId);
@@ -211,7 +218,6 @@
 				const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 				const audioFile = new File([audioBlob], "recording.webm", { type: "audio/webm" });
 				await run(audioFile, "en"); // Transcribe with selected language
-				transcriptionResult.value = result.value?.text || "";
 
 				// Save transcription to store
 				if (transcriptionResult.value) {

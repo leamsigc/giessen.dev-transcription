@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import TranscriptionWorker from "@/assets/workers/transcriptionWorker?worker";
 
-type WorkerStatus = "idle" | "loading" | "loaded" | "transcribing" | "done" | "models" | "error";
+type WorkerStatus = "idle" | "loading" | "loaded" | "ready" | "transcribing" | "complete" | "done" | "unloaded" | "models" | "error";
 interface ModelsOption {
 	id: string
 	name: string
@@ -21,7 +21,7 @@ const status = ref<WorkerStatus>("idle");
 const worker = ref<Worker | null>(null);
 const isInitialized = ref(false);
 
-const selectedModel = ref("distil-whisper/distil-large-v3");
+const selectedModel = ref("onnx-community/whisper-base_timestamped");
 const modelsOptions = ref<ModelsOption[]>([]);
 
 const progress = ref<number>(0);
@@ -47,6 +47,20 @@ export const useTranscriber = () => {
 				console.log("event", event);
 				console.log("event", availableModels);
 
+				// Handle messages without type field (fallback for legacy messages)
+				if (!type && workerStatus) {
+					// Treat as status message
+					status.value = workerStatus;
+					if (workerProgress !== undefined) {
+						progress.value = workerProgress;
+					}
+					// Handle ready status (model loaded successfully)
+					if (workerStatus === "ready") {
+						status.value = "loaded";
+					}
+					return;
+				}
+
 				switch (type) {
 					case "models":
 						modelsOptions.value = availableModels;
@@ -64,6 +78,22 @@ export const useTranscriber = () => {
 								streamingResult.value = { text: "" };
 							}
 						}
+						// Handle ready status (model loaded successfully)
+						if (workerStatus === "ready") {
+							status.value = "loaded";
+						}
+						// Handle unloaded status
+						if (workerStatus === "unloaded") {
+							status.value = "idle";
+							isInitialized.value = false;
+						}
+						// Handle completion status
+						if (workerStatus === "complete") {
+							isStreaming.value = false;
+							streamingResult.value = null;
+							result.value = workerResult;
+							status.value = "done";
+						}
 						break;
 					case "stream":
 						streamingResult.value = workerResult;
@@ -72,6 +102,12 @@ export const useTranscriber = () => {
 						}
 						break;
 					case "completed":
+						// Set the final result
+						result.value = workerResult;
+						status.value = "done";
+						isStreaming.value = false;
+						streamingResult.value = null;
+
 						// Handle automatic completion
 						if (transcriptionId && completionCallbacks.value.has(transcriptionId)) {
 							const callbacks = completionCallbacks.value.get(transcriptionId);
@@ -101,10 +137,8 @@ export const useTranscriber = () => {
 							completionCallbacks.value.delete(transcriptionId);
 						}
 						break;
-					case "result":
-						result.value = workerResult;
-						isStreaming.value = false;
-						streamingResult.value = null;
+					default:
+						console.warn("Unknown worker message type:", type, event.data);
 						break;
 				}
 			};
